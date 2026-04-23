@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "detailed_observation": "asdasdasdasd",
+        "picture_path": "uploads/1_download.jpg",
+        "additional_picture_path": "uploads/1_add_download.jpg",
+        "area_department": "qqqqqqqqqqqqqqqqqqqqqqq",
+        "checked_by": "asdasdasda",
+        "action_done": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "date": "2026-03-11",
+        "so_timestamp": "March 11 2026 09:52:20",
+        "area_in_charge": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+        "category": "Findings",
+        "status": "Open",
+        "osh_rule": "1200",
+        "safety_officer": "ttttttttttttttttttttttttttttttttttttttttttttttt"
+    },
+    {
+        "id": 2,
+        "detailed_observation": "asdjaisjdioasdasdasdas",
+        "picture_path": "uploads/2_ISMS_LOCK_SCREEN.png",
+        "additional_picture_path": "uploads/2_add_ISMS_LOCK_SCREEN.png",
+        "area_department": "asdasdas",
+        "checked_by": "asdasdasd",
+        "action_done": "asdasdasd",
+        "date": "2026-03-11",
+        "so_timestamp": "March 11 2026 10:23:35",
+        "area_in_charge": "asdasdasda",
+        "category": "Good Observation",
+        "status": "",
+        "osh_rule": "",
+        "safety_officer": "asdasdasd"
+    }
+]

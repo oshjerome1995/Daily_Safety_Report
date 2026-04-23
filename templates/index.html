@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Safety Report</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+.table-img { width: 80px; height: auto; max-height: 60px; object-fit: cover; }
+.table-responsive { overflow-x: auto; }
+.highlight-row { animation: highlight 1.5s; }
+@keyframes highlight { from { background-color: #d4edda; } to { background-color: inherit; } }
+</style>
+</head>
+<body class="bg-light">
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h2 class="mb-2 mb-md-0">Daily Safety Report</h2>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="/add" class="btn btn-primary mb-2">Add Record</a>
+            <a href="#" id="exportBtn" class="btn btn-success mb-2">Export Excel</a>
+        </div>
+    </div>
+
+    <!-- Filters and Sort -->
+    <div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+        <div>
+            <label>Category:</label>
+            <select id="filterCategory" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="Good Observation">Good Observation</option>
+                <option value="Findings">Findings</option>
+            </select>
+        </div>
+        <div>
+            <label>Status:</label>
+            <select id="filterStatus" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="Open">Open</option>
+                <option value="Closed">Closed</option>
+            </select>
+        </div>
+        <div>
+            <label>OSH Rule:</label>
+            <select id="filterOshRule" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="1060">1060</option>
+                <option value="1200">1200</option>
+                <option value="1210">1210</option>
+            </select>
+        </div>
+        <div>
+            <label>Area/Dept:</label>
+            <input type="text" id="filterArea" class="form-control form-control-sm" placeholder="Type to filter">
+        </div>
+        <div>
+            <label>Sort By:</label>
+            <select id="sortField" class="form-select form-select-sm">
+                <option value="">Default (ID DESC)</option>
+                <option value="date">Date</option>
+                <option value="category">Category</option>
+                <option value="status">Status</option>
+                <option value="area_department">Area/Dept</option>
+            </select>
+        </div>
+        <div>
+            <label>Order:</label>
+            <select id="sortOrder" class="form-select form-select-sm">
+                <option value="ASC">ASC</option>
+                <option value="DESC" selected>DESC</option>
+            </select>
+        </div>
+        <div class="align-self-end">
+            <button id="clearFilters" class="btn btn-sm btn-secondary">Clear Filters</button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th><th>Observation</th><th>Picture</th><th>Area/Dept</th><th>Checked By</th>
+                <th>Action Done</th><th>Date</th><th>SO Timestamp</th><th>Area In-Charge</th>
+                <th>Category</th><th>Additional Picture</th><th>Status</th><th>OSH Rule</th><th>Safety Officer</th><th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="recordsTableBody">
+            <!-- Records loaded dynamically -->
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<script>
+let currentFilters = { category: "", status: "", osh_rule: "", area_department: "" };
+let currentSort = { field: "", order: "DESC" };
+
+const tbody = document.getElementById("recordsTableBody");
+
+async function fetchRecords() {
+    let params = new URLSearchParams({
+        ...currentFilters,
+        sort_field: currentSort.field,
+        sort_order: currentSort.order
+    });
+    try {
+        let res = await fetch("/records?" + params.toString());
+        let data = await res.json();
+        tbody.innerHTML = "";
+        data.forEach(r=>{
+            let row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${r.id}</td>
+                <td>${r.detailed_observation || ""}</td>
+                <td>${r.picture_path ? `<img src="/static/${r.picture_path}" class="table-img">` : ""}</td>
+                <td>${r.area_department || ""}</td>
+                <td>${r.checked_by || ""}</td>
+                <td>${r.action_done || ""}</td>
+                <td>${r.date || ""}</td>
+                <td>${r.so_timestamp || ""}</td>
+                <td>${r.area_in_charge || ""}</td>
+                <td>${r.category || ""}</td>
+                <td>${r.additional_picture_path ? `<img src="/static/${r.additional_picture_path}" class="table-img">` : ""}</td>
+                <td>${r.status || ""}</td>
+                <td>${r.osh_rule || ""}</td>
+                <td>${r.safety_officer || ""}</td>
+                <td class="d-flex flex-column flex-md-row gap-1">
+                    <a href="/edit/${r.id}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="/delete/${r.id}" method="POST" class="m-0 p-0">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this record?')">Delete</button>
+                    </form>
+                </td>
+            `;
+            tbody.appendChild(row);
+            row.classList.add('highlight-row');
+            setTimeout(()=>row.classList.remove('highlight-row'), 1500);
+        });
+    } catch(err){ console.error(err); }
+}
+
+// Filter event listeners
+document.getElementById("filterCategory").addEventListener("change", e=>{ currentFilters.category = e.target.value; fetchRecords(); });
+document.getElementById("filterStatus").addEventListener("change", e=>{ currentFilters.status = e.target.value; fetchRecords(); });
+document.getElementById("filterOshRule").addEventListener("change", e=>{ currentFilters.osh_rule = e.target.value; fetchRecords(); });
+document.getElementById("filterArea").addEventListener("input", e=>{ currentFilters.area_department = e.target.value; fetchRecords(); });
+
+document.getElementById("sortField").addEventListener("change", e=>{ currentSort.field = e.target.value; fetchRecords(); });
+document.getElementById("sortOrder").addEventListener("change", e=>{ currentSort.order = e.target.value; fetchRecords(); });
+
+document.getElementById("clearFilters").addEventListener("click", ()=>{
+    currentFilters = { category: "", status: "", osh_rule: "", area_department: "" };
+    document.getElementById("filterCategory").value = "";
+    document.getElementById("filterStatus").value = "";
+    document.getElementById("filterOshRule").value = "";
+    document.getElementById("filterArea").value = "";
+    fetchRecords();
+});
+
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+    let params = new URLSearchParams({
+        ...currentFilters,
+        sort_field: currentSort.field,
+        sort_order: currentSort.order
+    });
+    window.location.href = "/export?" + params.toString();
+});
+
+// Initial fetch
+fetchRecords();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
